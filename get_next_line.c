@@ -6,63 +6,71 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/14 17:11:31 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/16 16:13:06 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/19 17:05:37 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h> //debug
 
-int		end_of_line(char *line)
+int		end_of_line(t_list *lst, int fd)
 {
-	int	i;
+	int		i;
+	char	*str;
 
 	i = -1;
-	if (line)
-	{
-		while (line[++i])
-			if (line[i] == '\n')
-				return (i);
-	}
+	while (lst && lst->content_size != (size_t)fd)
+		lst = lst->next;
+	str = lst->content;
+	while (str[++i])
+		if (str[i] == '\n')
+			return (i);
 	return (-1);
 }
 
-int		check_buff(char *buffer)
+char	*send_line(t_list **lst, int fd)
 {
-	int	end;
+	char	*str;
+	int		len;
+	int		end;
 
-	if ((end = end_of_line(buffer)) >= 0)
-		return (1);
-	return (0);
+	end = end_of_line(*lst, fd);
+	while (*lst && (*lst)->content_size != (size_t)fd)
+		*lst = (*lst)->next;
+	len = ft_strlen((*lst)->content);
+	if (!(str = (char *)malloc(sizeof(char) * end + 1)))
+		return (NULL);
+	str = ft_strncpy(str, (*lst)->content, end);
+	(*lst)->content = ft_strdup((*lst)->content + end + 1);
+	str[end] = '\0';
+	return (str);
 }
 
 int		get_next_line(const int fd, char **line)
 {
-	static char	*buffer;
+	int				rd;
+	static t_list	*lst = NULL;
+	char			*tmp;
+	char			buffer[BUFF_SIZE + 1];
 
-	if (!buffer)
-		if (!(buffer = (char *)malloc(sizeof(char) * BUFF_SIZE + 1)))
-			return (-1);
-	buffer[BUFF_SIZE] = 0;
-	if (check_buff(buffer) == 1)
+	ft_bzero(buffer, BUFF_SIZE + 1);
+	if (lst && end_of_line(lst, fd) >= 0)
 	{
-		*line = ft_strncat(*line, buffer, end_of_line(buffer) + 1);
-		printf("line = %s\n", *line);
-		buffer = ft_memmove(buffer, buffer + end_of_line(buffer),
-				ft_strlen(buffer) - end_of_line(buffer));
+		if (!(*line = send_line(&lst, fd)))
+			return (-1);
 		return (1);
 	}
-	while (read(fd, buffer, BUFF_SIZE) > 0)
+	rd = read(fd, buffer, BUFF_SIZE);
+	if (!lst)
 	{
-		if (check_buff(buffer) == 1)
-		{
-			*line = ft_strncat(*line, buffer, end_of_line(buffer) + 1);
-			buffer = ft_memmove(buffer, buffer + end_of_line(buffer),
-					ft_strlen(buffer) - end_of_line(buffer));
-			return (1);
-		}
-		*line = ft_strncat(*line, buffer, BUFF_SIZE);
+		lst = ft_lstnew(buffer, rd + 1);
+		lst->content_size = (size_t)fd;
 	}
-	free(buffer);
-	return (0);
+	else
+	{
+		tmp = lst->content;
+		lst->content = (void *)ft_strjoin(lst->content, buffer);
+		free(tmp);
+	}
+	return ((rd > 0) ? get_next_line(fd, line) : 0);
 }
