@@ -6,7 +6,7 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/14 17:11:31 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/19 19:16:08 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/20 11:08:35 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,17 @@ static char	*send_line(t_list **lst, int fd)
 	char	*str;
 	int		end;
 
-	end = end_of_line(*lst, fd);
+	end = (end_of_line(*lst, fd) == -1) ? ft_strlen((*lst)->content) :
+		end_of_line(*lst, fd);
 	while (*lst && (*lst)->content_size != (size_t)fd)
 		*lst = (*lst)->next;
 	if (!(str = (char *)malloc(sizeof(char) * end + 1)))
 		return (NULL);
 	str = ft_strncpy(str, (*lst)->content, end);
-	(*lst)->content = ft_strdup((*lst)->content + end + 1);
+	if (end_of_line(*lst, fd) != -1)
+		(*lst)->content = ft_strdup((*lst)->content + end + 1);
+	else
+		ft_bzero((*lst)->content, end);
 	str[end] = '\0';
 	return (str);
 }
@@ -76,5 +80,11 @@ int			get_next_line(const int fd, char **line)
 	if ((rd = read(fd, buffer, BUFF_SIZE)) < 0)
 		return (-1);
 	read_it(&lst, buffer, rd, fd);
+	if (ft_strlen(lst->content) > 0 && rd == 0)
+	{
+		if (!(*line = send_line(&lst, fd)))
+			return (-1);
+		return (1);
+	}
 	return ((rd > 0) ? get_next_line(fd, line) : 0);
 }
