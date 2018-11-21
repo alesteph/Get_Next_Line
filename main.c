@@ -6,7 +6,7 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/14 17:01:31 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/20 11:48:55 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/21 17:06:02 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,27 @@
 
 int		main(int ac, char **av)
 {
-	int		fd;
+	int		i;
+	int		fd[3];
 	char	*line;
 
-	if (ac == 2)
+	i = -1;
+	if (ac >= 2)
 	{
-		fd = open(av[1], O_RDONLY);
-		while (get_next_line(fd, &line) > 0)
+		while (i < 3)
+			fd[++i] = open(++*av, O_RDONLY);
+		i = -1;
+		while (get_next_line(fd[++i], &line) > 0 && i < 3)
 		{
+			write(1, "*", 1);
+			if (i == 2)
+				i = -1;
 			ft_putendl(line);
 			free(line);
 		}
-		close(fd);
+		i = -1;
+		while (++i < 3)
+			close(fd[i]);
 	}
 	else
 		ft_putstr_fd("Missing file.\n", 2);
