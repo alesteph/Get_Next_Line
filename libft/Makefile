@@ -6,7 +6,7 @@
 #    By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/06 14:13:34 by alesteph          #+#    #+#              #
-#    Updated: 2018/11/14 11:38:12 by alesteph         ###   ########.fr        #
+#    Updated: 2018/11/22 18:42:03 by alesteph         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -76,20 +76,21 @@ BONUS= ft_lstnew.c \
 	   ft_lstiter.c \
 	   ft_lstmap.c
 
-BONUS++= ft_convert_base.c \
+ADDS= ft_convert_base.c \
 	ft_strcapitalize.c \
 	ft_str_is_alpha.c \
 	ft_str_is_numeric.c \
 	ft_str_is_lowercase.c \
 	ft_str_is_uppercase.c \
-	ft_str_is_printable.c
+	ft_str_is_printable.c \
+	ft_isempty.c
 
-OBJS= $(SRCS:.c=.o) $(BONUS:.c=.o) $(BONUS++:.c=.o)
+OBJS= $(SRCS:.c=.o) $(BONUS:.c=.o) $(ADDS:.c=.o)
 
 all: $(NAME)
 
 $(NAME):
-	$(GCC) $(FLAGS) -c $(SRCS) $(BONUS) $(BONUS++)
+	$(GCC) $(FLAGS) -c $(SRCS) $(BONUS) $(ADDS)
 	ar rc $(NAME) $(OBJS)
 	ranlib $(NAME)
 

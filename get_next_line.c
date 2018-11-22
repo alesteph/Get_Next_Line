@@ -6,7 +6,7 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/14 17:11:31 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/22 15:04:34 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/22 18:33:44 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ int			get_next_line(const int fd, char **line)
 	if ((rd = read(fd, buffer, BUFF_SIZE)) < 0)
 		return (-1);
 	read_it(&lst, buffer, rd, fd);
-	if (check_fd(lst, fd) > 0 && rd == 0)
+	if (ft_isempty(lst->content) != 0 && rd == 0)
 	{
 		if (!(*line = send_line(lst, fd)))
 			return (-1);

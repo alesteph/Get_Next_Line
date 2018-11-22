@@ -6,7 +6,7 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/06 15:56:48 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/14 11:37:17 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/22 18:43:02 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,13 @@ t_list			*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem));
 **	Fonction Bonus ++
 */
 
-char			*ft_convert_base(char *nbr, char *base_from, char base_to);
+char			*ft_convert_base(char *nbr, char *base_from, char *base_to);
 char			*ft_strcapitalize(char *str);
 int				ft_str_is_alpha(char *str);
 int				ft_str_is_numeric(char *str);
 int				ft_str_is_lowercase(char *str);
 int				ft_str_is_uppercase(char *str);
 int				ft_str_is_printable(char *str);
+int				ft_isempty(char *s);
 
 #endif
