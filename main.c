@@ -6,37 +6,29 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/14 17:01:31 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/21 17:06:02 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/22 18:20:04 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <fcntl.h>
 #include <stdio.h>
+#include <string.h>
 
 int		main(int ac, char **av)
 {
-	int		i;
-	int		fd[3];
+	int		fd;
 	char	*line;
 
-	i = -1;
-	if (ac >= 2)
+	if (ac == 2)
 	{
-		while (i < 3)
-			fd[++i] = open(++*av, O_RDONLY);
-		i = -1;
-		while (get_next_line(fd[++i], &line) > 0 && i < 3)
+		fd = open(av[1], O_RDONLY);
+		while (get_next_line(fd, &line) > 0)
 		{
-			write(1, "*", 1);
-			if (i == 2)
-				i = -1;
 			ft_putendl(line);
 			free(line);
 		}
-		i = -1;
-		while (++i < 3)
-			close(fd[i]);
+		close(fd);
 	}
 	else
 		ft_putstr_fd("Missing file.\n", 2);

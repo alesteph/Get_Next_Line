@@ -6,7 +6,7 @@
 /*   By: alesteph <alesteph@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/14 17:11:31 by alesteph          #+#    #+#             */
-/*   Updated: 2018/11/23 12:15:30 by alesteph         ###   ########.fr       */
+/*   Updated: 2018/11/22 18:33:44 by alesteph         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static int	end_of_line(t_list *lst, int fd)
 	return (-1);
 }
 
-static char	*send_line(t_list *lst, int fd, int n)
+static char	*send_line(t_list *lst, int fd)
 {
 	t_list	*tmp;
 	char	*str;
@@ -40,11 +40,12 @@ static char	*send_line(t_list *lst, int fd, int n)
 	tmp = lst;
 	while (tmp && tmp->content_size != (size_t)fd)
 		tmp = tmp->next;
-	end = (n == -1) ? ft_strlen(tmp->content) : n;
+	end = (end_of_line(tmp, fd) == -1) ? ft_strlen(tmp->content) :
+		end_of_line(tmp, fd);
 	if (!(str = (char *)malloc(sizeof(char) * end + 1)))
 		return (NULL);
 	str = ft_strncpy(str, tmp->content, end);
-	if (n == -1)
+	if (end_of_line(tmp, fd) == -1)
 		ft_bzero(tmp->content, end);
 	else
 	{
@@ -61,10 +62,10 @@ static int	check_fd(t_list *lst, int fd)
 	while (lst)
 	{
 		if (lst->content_size == (size_t)fd)
-			return (1);
+			return ((int)ft_strlen(lst->content));
 		lst = lst->next;
 	}
-	return (0);
+	return (-1);
 }
 
 static void	read_it(t_list **lst, const char *buffer, int rd, int fd)
@@ -72,7 +73,7 @@ static void	read_it(t_list **lst, const char *buffer, int rd, int fd)
 	t_list	*new;
 	char	*tmp;
 
-	if (check_fd(*lst, fd) == 0)
+	if (check_fd(*lst, fd) == -1)
 	{
 		new = ft_lstnew(buffer, rd + 1);
 		new->content_size = (size_t)fd;
@@ -92,24 +93,24 @@ static void	read_it(t_list **lst, const char *buffer, int rd, int fd)
 int			get_next_line(const int fd, char **line)
 {
 	int				rd;
-	int				n;
 	static t_list	*lst = NULL;
 	char			buffer[BUFF_SIZE + 1];
 
 	ft_bzero(buffer, BUFF_SIZE + 1);
-	if (fd < 0 || (rd = read(fd, buffer, 0)) < 0)
-		return (-1);
-	while ((n = end_of_line(lst, fd)) == -1 &&
-			(rd = read(fd, buffer, BUFF_SIZE)) > 0)
+	if (lst && (end_of_line(lst, fd) >= 0))
 	{
-		read_it(&lst, buffer, rd, fd);
-		ft_strclr(buffer);
-	}
-	if (ft_isempty(lst->content) != 0)
-	{
-		if (!(*line = send_line(lst, fd, n)))
+		if (!(*line = send_line(lst, fd)))
 			return (-1);
 		return (1);
 	}
-	return (0);
+	if ((rd = read(fd, buffer, BUFF_SIZE)) < 0)
+		return (-1);
+	read_it(&lst, buffer, rd, fd);
+	if (ft_isempty(lst->content) != 0 && rd == 0)
+	{
+		if (!(*line = send_line(lst, fd)))
+			return (-1);
+		return (1);
+	}
+	return ((rd > 0) ? get_next_line(fd, line) : 0);
 }
